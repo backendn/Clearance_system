@@ -49,7 +49,7 @@ jobs:
         which migrate
 
     - name: run migrations
-      run: make migrateup
+      run: migrate -path db/migration -database "postgresql://root:secret@localhost:5433/university_clearance_test?sslmode=disable" -verbose up
 
     - name: Build
       run: go build -v ./...
