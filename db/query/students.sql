@@ -17,9 +17,21 @@ RETURNING *;
 SELECT * FROM students
 WHERE id = $1 LIMIT 1;
 
+-- name: GetStudentForUpdate :one
+SELECT * FROM students
+WHERE id = $1
+FOR NO KEY UPDATE;
+
+
 -- name: GetStudentByStudentNumber :one
 SELECT * FROM students
 WHERE student_number = $1 LIMIT 1;
+
+
+-- name: GetStudentByStudentNumberForUpdate :one
+SELECT * FROM students
+WHERE student_number = $1 
+FOR NO KEY UPDATE;
 
 -- name: ListStudents :many
 SELECT * FROM students
@@ -37,6 +49,14 @@ UPDATE students SET
     enrollment_year = $7
 WHERE id = $8
 RETURNING *;
+
+-- name: UpdateStudentPartial :one
+UPDATE students
+SET email = $2,
+    phone = $3
+WHERE id = $1
+RETURNING *;
+
 
 -- name: DeleteStudent :exec
 DELETE FROM students

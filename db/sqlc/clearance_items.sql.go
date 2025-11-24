@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createClearanceItem = `-- name: CreateClearanceItem :one
@@ -20,13 +19,13 @@ RETURNING id, code, title, description, department_id, approver_staff_id, requir
 `
 
 type CreateClearanceItemParams struct {
-	Code               sql.NullString `json:"code"`
-	Title              sql.NullString `json:"title"`
-	Description        sql.NullString `json:"description"`
-	DepartmentID       sql.NullInt64  `json:"department_id"`
-	ApproverStaffID    sql.NullInt64  `json:"approver_staff_id"`
-	RequiresAttachment sql.NullBool   `json:"requires_attachment"`
-	Sequence           sql.NullInt32  `json:"sequence"`
+	Code               string `json:"code"`
+	Title              string `json:"title"`
+	Description        string `json:"description"`
+	DepartmentID       int64  `json:"department_id"`
+	ApproverStaffID    int64  `json:"approver_staff_id"`
+	RequiresAttachment bool   `json:"requires_attachment"`
+	Sequence           int32  `json:"sequence"`
 }
 
 func (q *Queries) CreateClearanceItem(ctx context.Context, arg CreateClearanceItemParams) (ClearanceItem, error) {
@@ -125,7 +124,7 @@ const listItemsByDepartment = `-- name: ListItemsByDepartment :many
 SELECT id, code, title, description, department_id, approver_staff_id, requires_attachment, sequence, created_at FROM clearance_items WHERE department_id = $1 ORDER BY sequence
 `
 
-func (q *Queries) ListItemsByDepartment(ctx context.Context, departmentID sql.NullInt64) ([]ClearanceItem, error) {
+func (q *Queries) ListItemsByDepartment(ctx context.Context, departmentID int64) ([]ClearanceItem, error) {
 	rows, err := q.db.QueryContext(ctx, listItemsByDepartment, departmentID)
 	if err != nil {
 		return nil, err
@@ -171,14 +170,14 @@ WHERE id = $8 RETURNING id, code, title, description, department_id, approver_st
 `
 
 type UpdateClearanceItemParams struct {
-	Code               sql.NullString `json:"code"`
-	Title              sql.NullString `json:"title"`
-	Description        sql.NullString `json:"description"`
-	DepartmentID       sql.NullInt64  `json:"department_id"`
-	ApproverStaffID    sql.NullInt64  `json:"approver_staff_id"`
-	RequiresAttachment sql.NullBool   `json:"requires_attachment"`
-	Sequence           sql.NullInt32  `json:"sequence"`
-	ID                 int64          `json:"id"`
+	Code               string `json:"code"`
+	Title              string `json:"title"`
+	Description        string `json:"description"`
+	DepartmentID       int64  `json:"department_id"`
+	ApproverStaffID    int64  `json:"approver_staff_id"`
+	RequiresAttachment bool   `json:"requires_attachment"`
+	Sequence           int32  `json:"sequence"`
+	ID                 int64  `json:"id"`
 }
 
 func (q *Queries) UpdateClearanceItem(ctx context.Context, arg UpdateClearanceItemParams) (ClearanceItem, error) {

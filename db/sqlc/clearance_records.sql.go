@@ -7,7 +7,7 @@ package db
 
 import (
 	"context"
-	"database/sql"
+	"time"
 )
 
 const createClearanceRecord = `-- name: CreateClearanceRecord :one
@@ -20,14 +20,14 @@ RETURNING id, student_id, clearance_item_id, session_id, status, note, handled_b
 `
 
 type CreateClearanceRecordParams struct {
-	StudentID       sql.NullInt64  `json:"student_id"`
-	ClearanceItemID sql.NullInt64  `json:"clearance_item_id"`
-	SessionID       sql.NullInt64  `json:"session_id"`
-	Status          sql.NullString `json:"status"`
-	Note            sql.NullString `json:"note"`
-	HandledBy       sql.NullInt64  `json:"handled_by"`
-	HandledAt       sql.NullTime   `json:"handled_at"`
-	AttachmentUrl   sql.NullString `json:"attachment_url"`
+	StudentID       int64     `json:"student_id"`
+	ClearanceItemID int64     `json:"clearance_item_id"`
+	SessionID       int64     `json:"session_id"`
+	Status          string    `json:"status"`
+	Note            string    `json:"note"`
+	HandledBy       int64     `json:"handled_by"`
+	HandledAt       time.Time `json:"handled_at"`
+	AttachmentUrl   string    `json:"attachment_url"`
 }
 
 func (q *Queries) CreateClearanceRecord(ctx context.Context, arg CreateClearanceRecordParams) (ClearanceRecord, error) {
@@ -94,7 +94,7 @@ WHERE session_id = $1
 ORDER BY student_id
 `
 
-func (q *Queries) ListRecordsBySession(ctx context.Context, sessionID sql.NullInt64) ([]ClearanceRecord, error) {
+func (q *Queries) ListRecordsBySession(ctx context.Context, sessionID int64) ([]ClearanceRecord, error) {
 	rows, err := q.db.QueryContext(ctx, listRecordsBySession, sessionID)
 	if err != nil {
 		return nil, err
@@ -134,7 +134,7 @@ WHERE student_id = $1
 ORDER BY clearance_item_id
 `
 
-func (q *Queries) ListRecordsByStudent(ctx context.Context, studentID sql.NullInt64) ([]ClearanceRecord, error) {
+func (q *Queries) ListRecordsByStudent(ctx context.Context, studentID int64) ([]ClearanceRecord, error) {
 	rows, err := q.db.QueryContext(ctx, listRecordsByStudent, studentID)
 	if err != nil {
 		return nil, err
@@ -181,12 +181,12 @@ RETURNING id, student_id, clearance_item_id, session_id, status, note, handled_b
 `
 
 type UpdateClearanceRecordStatusParams struct {
-	Status        sql.NullString `json:"status"`
-	Note          sql.NullString `json:"note"`
-	HandledBy     sql.NullInt64  `json:"handled_by"`
-	HandledAt     sql.NullTime   `json:"handled_at"`
-	AttachmentUrl sql.NullString `json:"attachment_url"`
-	ID            int64          `json:"id"`
+	Status        string    `json:"status"`
+	Note          string    `json:"note"`
+	HandledBy     int64     `json:"handled_by"`
+	HandledAt     time.Time `json:"handled_at"`
+	AttachmentUrl string    `json:"attachment_url"`
+	ID            int64     `json:"id"`
 }
 
 func (q *Queries) UpdateClearanceRecordStatus(ctx context.Context, arg UpdateClearanceRecordStatusParams) (ClearanceRecord, error) {

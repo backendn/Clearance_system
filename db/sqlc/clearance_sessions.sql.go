@@ -7,7 +7,7 @@ package db
 
 import (
 	"context"
-	"database/sql"
+	"time"
 )
 
 const createSession = `-- name: CreateSession :one
@@ -18,10 +18,10 @@ RETURNING id, name, start_date, end_date, active, created_at
 `
 
 type CreateSessionParams struct {
-	Name      sql.NullString `json:"name"`
-	StartDate sql.NullTime   `json:"start_date"`
-	EndDate   sql.NullTime   `json:"end_date"`
-	Active    sql.NullBool   `json:"active"`
+	Name      string    `json:"name"`
+	StartDate time.Time `json:"start_date"`
+	EndDate   time.Time `json:"end_date"`
+	Active    bool      `json:"active"`
 }
 
 func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (ClearanceSession, error) {
@@ -115,11 +115,11 @@ RETURNING id, name, start_date, end_date, active, created_at
 `
 
 type UpdateSessionParams struct {
-	Name      sql.NullString `json:"name"`
-	StartDate sql.NullTime   `json:"start_date"`
-	EndDate   sql.NullTime   `json:"end_date"`
-	Active    sql.NullBool   `json:"active"`
-	ID        int64          `json:"id"`
+	Name      string    `json:"name"`
+	StartDate time.Time `json:"start_date"`
+	EndDate   time.Time `json:"end_date"`
+	Active    bool      `json:"active"`
+	ID        int64     `json:"id"`
 }
 
 func (q *Queries) UpdateSession(ctx context.Context, arg UpdateSessionParams) (ClearanceSession, error) {

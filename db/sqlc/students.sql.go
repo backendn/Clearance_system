@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createStudent = `-- name: CreateStudent :one
@@ -27,13 +26,13 @@ RETURNING id, student_number, first_name, last_name, email, phone, department_id
 `
 
 type CreateStudentParams struct {
-	StudentNumber  sql.NullString `json:"student_number"`
-	FirstName      sql.NullString `json:"first_name"`
-	LastName       sql.NullString `json:"last_name"`
-	Email          sql.NullString `json:"email"`
-	Phone          sql.NullString `json:"phone"`
-	DepartmentID   sql.NullInt64  `json:"department_id"`
-	EnrollmentYear sql.NullInt32  `json:"enrollment_year"`
+	StudentNumber  string `json:"student_number"`
+	FirstName      string `json:"first_name"`
+	LastName       string `json:"last_name"`
+	Email          string `json:"email"`
+	Phone          string `json:"phone"`
+	DepartmentID   int64  `json:"department_id"`
+	EnrollmentYear int32  `json:"enrollment_year"`
 }
 
 func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (Student, error) {
@@ -98,8 +97,54 @@ SELECT id, student_number, first_name, last_name, email, phone, department_id, e
 WHERE student_number = $1 LIMIT 1
 `
 
-func (q *Queries) GetStudentByStudentNumber(ctx context.Context, studentNumber sql.NullString) (Student, error) {
+func (q *Queries) GetStudentByStudentNumber(ctx context.Context, studentNumber string) (Student, error) {
 	row := q.db.QueryRowContext(ctx, getStudentByStudentNumber, studentNumber)
+	var i Student
+	err := row.Scan(
+		&i.ID,
+		&i.StudentNumber,
+		&i.FirstName,
+		&i.LastName,
+		&i.Email,
+		&i.Phone,
+		&i.DepartmentID,
+		&i.EnrollmentYear,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getStudentByStudentNumberForUpdate = `-- name: GetStudentByStudentNumberForUpdate :one
+SELECT id, student_number, first_name, last_name, email, phone, department_id, enrollment_year, created_at FROM students
+WHERE student_number = $1 
+FOR NO KEY UPDATE
+`
+
+func (q *Queries) GetStudentByStudentNumberForUpdate(ctx context.Context, studentNumber string) (Student, error) {
+	row := q.db.QueryRowContext(ctx, getStudentByStudentNumberForUpdate, studentNumber)
+	var i Student
+	err := row.Scan(
+		&i.ID,
+		&i.StudentNumber,
+		&i.FirstName,
+		&i.LastName,
+		&i.Email,
+		&i.Phone,
+		&i.DepartmentID,
+		&i.EnrollmentYear,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getStudentForUpdate = `-- name: GetStudentForUpdate :one
+SELECT id, student_number, first_name, last_name, email, phone, department_id, enrollment_year, created_at FROM students
+WHERE id = $1
+FOR NO KEY UPDATE
+`
+
+func (q *Queries) GetStudentForUpdate(ctx context.Context, id int64) (Student, error) {
+	row := q.db.QueryRowContext(ctx, getStudentForUpdate, id)
 	var i Student
 	err := row.Scan(
 		&i.ID,
@@ -173,14 +218,14 @@ RETURNING id, student_number, first_name, last_name, email, phone, department_id
 `
 
 type UpdateStudentParams struct {
-	StudentNumber  sql.NullString `json:"student_number"`
-	FirstName      sql.NullString `json:"first_name"`
-	LastName       sql.NullString `json:"last_name"`
-	Email          sql.NullString `json:"email"`
-	Phone          sql.NullString `json:"phone"`
-	DepartmentID   sql.NullInt64  `json:"department_id"`
-	EnrollmentYear sql.NullInt32  `json:"enrollment_year"`
-	ID             int64          `json:"id"`
+	StudentNumber  string `json:"student_number"`
+	FirstName      string `json:"first_name"`
+	LastName       string `json:"last_name"`
+	Email          string `json:"email"`
+	Phone          string `json:"phone"`
+	DepartmentID   int64  `json:"department_id"`
+	EnrollmentYear int32  `json:"enrollment_year"`
+	ID             int64  `json:"id"`
 }
 
 func (q *Queries) UpdateStudent(ctx context.Context, arg UpdateStudentParams) (Student, error) {
@@ -194,6 +239,37 @@ func (q *Queries) UpdateStudent(ctx context.Context, arg UpdateStudentParams) (S
 		arg.EnrollmentYear,
 		arg.ID,
 	)
+	var i Student
+	err := row.Scan(
+		&i.ID,
+		&i.StudentNumber,
+		&i.FirstName,
+		&i.LastName,
+		&i.Email,
+		&i.Phone,
+		&i.DepartmentID,
+		&i.EnrollmentYear,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const updateStudentPartial = `-- name: UpdateStudentPartial :one
+UPDATE students
+SET email = $2,
+    phone = $3
+WHERE id = $1
+RETURNING id, student_number, first_name, last_name, email, phone, department_id, enrollment_year, created_at
+`
+
+type UpdateStudentPartialParams struct {
+	ID    int64  `json:"id"`
+	Email string `json:"email"`
+	Phone string `json:"phone"`
+}
+
+func (q *Queries) UpdateStudentPartial(ctx context.Context, arg UpdateStudentPartialParams) (Student, error) {
+	row := q.db.QueryRowContext(ctx, updateStudentPartial, arg.ID, arg.Email, arg.Phone)
 	var i Student
 	err := row.Scan(
 		&i.ID,

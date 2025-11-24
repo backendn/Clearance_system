@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createStaffUser = `-- name: CreateStaffUser :one
@@ -19,12 +18,12 @@ RETURNING id, username, email, full_name, department_id, role_id, password_hash,
 `
 
 type CreateStaffUserParams struct {
-	Username     sql.NullString `json:"username"`
-	Email        sql.NullString `json:"email"`
-	FullName     sql.NullString `json:"full_name"`
-	DepartmentID sql.NullInt64  `json:"department_id"`
-	RoleID       sql.NullInt64  `json:"role_id"`
-	PasswordHash sql.NullString `json:"password_hash"`
+	Username     string `json:"username"`
+	Email        string `json:"email"`
+	FullName     string `json:"full_name"`
+	DepartmentID int64  `json:"department_id"`
+	RoleID       int64  `json:"role_id"`
+	PasswordHash string `json:"password_hash"`
 }
 
 func (q *Queries) CreateStaffUser(ctx context.Context, arg CreateStaffUserParams) (StaffUser, error) {
@@ -83,7 +82,7 @@ const getStaffUserByEmail = `-- name: GetStaffUserByEmail :one
 SELECT id, username, email, full_name, department_id, role_id, password_hash, created_at FROM staff_users WHERE email = $1 LIMIT 1
 `
 
-func (q *Queries) GetStaffUserByEmail(ctx context.Context, email sql.NullString) (StaffUser, error) {
+func (q *Queries) GetStaffUserByEmail(ctx context.Context, email string) (StaffUser, error) {
 	row := q.db.QueryRowContext(ctx, getStaffUserByEmail, email)
 	var i StaffUser
 	err := row.Scan(
@@ -103,7 +102,7 @@ const getStaffUserByUsername = `-- name: GetStaffUserByUsername :one
 SELECT id, username, email, full_name, department_id, role_id, password_hash, created_at FROM staff_users WHERE username = $1 LIMIT 1
 `
 
-func (q *Queries) GetStaffUserByUsername(ctx context.Context, username sql.NullString) (StaffUser, error) {
+func (q *Queries) GetStaffUserByUsername(ctx context.Context, username string) (StaffUser, error) {
 	row := q.db.QueryRowContext(ctx, getStaffUserByUsername, username)
 	var i StaffUser
 	err := row.Scan(
@@ -173,13 +172,13 @@ RETURNING id, username, email, full_name, department_id, role_id, password_hash,
 `
 
 type UpdateStaffUserParams struct {
-	Username     sql.NullString `json:"username"`
-	Email        sql.NullString `json:"email"`
-	FullName     sql.NullString `json:"full_name"`
-	DepartmentID sql.NullInt64  `json:"department_id"`
-	RoleID       sql.NullInt64  `json:"role_id"`
-	PasswordHash sql.NullString `json:"password_hash"`
-	ID           int64          `json:"id"`
+	Username     string `json:"username"`
+	Email        string `json:"email"`
+	FullName     string `json:"full_name"`
+	DepartmentID int64  `json:"department_id"`
+	RoleID       int64  `json:"role_id"`
+	PasswordHash string `json:"password_hash"`
+	ID           int64  `json:"id"`
 }
 
 func (q *Queries) UpdateStaffUser(ctx context.Context, arg UpdateStaffUserParams) (StaffUser, error) {

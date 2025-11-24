@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createDepartment = `-- name: CreateDepartment :one
@@ -18,8 +17,8 @@ RETURNING id, code, name, created_at
 `
 
 type CreateDepartmentParams struct {
-	Code sql.NullString `json:"code"`
-	Name sql.NullString `json:"name"`
+	Code string `json:"code"`
+	Name string `json:"name"`
 }
 
 func (q *Queries) CreateDepartment(ctx context.Context, arg CreateDepartmentParams) (Department, error) {
@@ -63,7 +62,7 @@ const getDepartmentByCode = `-- name: GetDepartmentByCode :one
 SELECT id, code, name, created_at FROM departments WHERE code = $1 LIMIT 1
 `
 
-func (q *Queries) GetDepartmentByCode(ctx context.Context, code sql.NullString) (Department, error) {
+func (q *Queries) GetDepartmentByCode(ctx context.Context, code string) (Department, error) {
 	row := q.db.QueryRowContext(ctx, getDepartmentByCode, code)
 	var i Department
 	err := row.Scan(
@@ -115,9 +114,9 @@ WHERE id = $3 RETURNING id, code, name, created_at
 `
 
 type UpdateDepartmentParams struct {
-	Code sql.NullString `json:"code"`
-	Name sql.NullString `json:"name"`
-	ID   int64          `json:"id"`
+	Code string `json:"code"`
+	Name string `json:"name"`
+	ID   int64  `json:"id"`
 }
 
 func (q *Queries) UpdateDepartment(ctx context.Context, arg UpdateDepartmentParams) (Department, error) {

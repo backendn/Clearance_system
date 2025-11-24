@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createRole = `-- name: CreateRole :one
@@ -16,7 +15,7 @@ VALUES ($1)
 RETURNING id, name
 `
 
-func (q *Queries) CreateRole(ctx context.Context, name sql.NullString) (Role, error) {
+func (q *Queries) CreateRole(ctx context.Context, name string) (Role, error) {
 	row := q.db.QueryRowContext(ctx, createRole, name)
 	var i Role
 	err := row.Scan(&i.ID, &i.Name)
@@ -47,7 +46,7 @@ const getRoleByName = `-- name: GetRoleByName :one
 SELECT id, name FROM roles WHERE name = $1 LIMIT 1
 `
 
-func (q *Queries) GetRoleByName(ctx context.Context, name sql.NullString) (Role, error) {
+func (q *Queries) GetRoleByName(ctx context.Context, name string) (Role, error) {
 	row := q.db.QueryRowContext(ctx, getRoleByName, name)
 	var i Role
 	err := row.Scan(&i.ID, &i.Name)

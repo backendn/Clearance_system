@@ -5,83 +5,83 @@
 package db
 
 import (
-	"database/sql"
+	"time"
 )
 
 type ClearanceItem struct {
-	ID                 int64          `json:"id"`
-	Code               sql.NullString `json:"code"`
-	Title              sql.NullString `json:"title"`
-	Description        sql.NullString `json:"description"`
-	DepartmentID       sql.NullInt64  `json:"department_id"`
-	ApproverStaffID    sql.NullInt64  `json:"approver_staff_id"`
-	RequiresAttachment sql.NullBool   `json:"requires_attachment"`
-	Sequence           sql.NullInt32  `json:"sequence"`
-	CreatedAt          sql.NullTime   `json:"created_at"`
+	ID                 int64     `json:"id"`
+	Code               string    `json:"code"`
+	Title              string    `json:"title"`
+	Description        string    `json:"description"`
+	DepartmentID       int64     `json:"department_id"`
+	ApproverStaffID    int64     `json:"approver_staff_id"`
+	RequiresAttachment bool      `json:"requires_attachment"`
+	Sequence           int32     `json:"sequence"`
+	CreatedAt          time.Time `json:"created_at"`
 }
 
 type ClearanceRecord struct {
-	ID              int64          `json:"id"`
-	StudentID       sql.NullInt64  `json:"student_id"`
-	ClearanceItemID sql.NullInt64  `json:"clearance_item_id"`
-	SessionID       sql.NullInt64  `json:"session_id"`
-	Status          sql.NullString `json:"status"`
-	Note            sql.NullString `json:"note"`
-	HandledBy       sql.NullInt64  `json:"handled_by"`
-	HandledAt       sql.NullTime   `json:"handled_at"`
-	AttachmentUrl   sql.NullString `json:"attachment_url"`
-	UpdatedAt       sql.NullTime   `json:"updated_at"`
+	ID              int64     `json:"id"`
+	StudentID       int64     `json:"student_id"`
+	ClearanceItemID int64     `json:"clearance_item_id"`
+	SessionID       int64     `json:"session_id"`
+	Status          string    `json:"status"`
+	Note            string    `json:"note"`
+	HandledBy       int64     `json:"handled_by"`
+	HandledAt       time.Time `json:"handled_at"`
+	AttachmentUrl   string    `json:"attachment_url"`
+	UpdatedAt       time.Time `json:"updated_at"`
 }
 
 type ClearanceSession struct {
-	ID        int64          `json:"id"`
-	Name      sql.NullString `json:"name"`
-	StartDate sql.NullTime   `json:"start_date"`
-	EndDate   sql.NullTime   `json:"end_date"`
-	Active    sql.NullBool   `json:"active"`
-	CreatedAt sql.NullTime   `json:"created_at"`
+	ID        int64     `json:"id"`
+	Name      string    `json:"name"`
+	StartDate time.Time `json:"start_date"`
+	EndDate   time.Time `json:"end_date"`
+	Active    bool      `json:"active"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type Department struct {
-	ID        int64          `json:"id"`
-	Code      sql.NullString `json:"code"`
-	Name      sql.NullString `json:"name"`
-	CreatedAt sql.NullTime   `json:"created_at"`
+	ID        int64     `json:"id"`
+	Code      string    `json:"code"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type Notification struct {
-	ID                 int64          `json:"id"`
-	RecipientUserID    sql.NullInt64  `json:"recipient_user_id"`
-	RecipientStudentID sql.NullInt64  `json:"recipient_student_id"`
-	Message            sql.NullString `json:"message"`
-	Read               sql.NullBool   `json:"read"`
-	CreatedAt          sql.NullTime   `json:"created_at"`
+	ID                 int64     `json:"id"`
+	RecipientUserID    int64     `json:"recipient_user_id"`
+	RecipientStudentID int64     `json:"recipient_student_id"`
+	Message            string    `json:"message"`
+	Read               bool      `json:"read"`
+	CreatedAt          time.Time `json:"created_at"`
 }
 
 type Role struct {
-	ID   int64          `json:"id"`
-	Name sql.NullString `json:"name"`
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
 }
 
 type StaffUser struct {
-	ID           int64          `json:"id"`
-	Username     sql.NullString `json:"username"`
-	Email        sql.NullString `json:"email"`
-	FullName     sql.NullString `json:"full_name"`
-	DepartmentID sql.NullInt64  `json:"department_id"`
-	RoleID       sql.NullInt64  `json:"role_id"`
-	PasswordHash sql.NullString `json:"password_hash"`
-	CreatedAt    sql.NullTime   `json:"created_at"`
+	ID           int64     `json:"id"`
+	Username     string    `json:"username"`
+	Email        string    `json:"email"`
+	FullName     string    `json:"full_name"`
+	DepartmentID int64     `json:"department_id"`
+	RoleID       int64     `json:"role_id"`
+	PasswordHash string    `json:"password_hash"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
 type Student struct {
-	ID             int64          `json:"id"`
-	StudentNumber  sql.NullString `json:"student_number"`
-	FirstName      sql.NullString `json:"first_name"`
-	LastName       sql.NullString `json:"last_name"`
-	Email          sql.NullString `json:"email"`
-	Phone          sql.NullString `json:"phone"`
-	DepartmentID   sql.NullInt64  `json:"department_id"`
-	EnrollmentYear sql.NullInt32  `json:"enrollment_year"`
-	CreatedAt      sql.NullTime   `json:"created_at"`
+	ID             int64     `json:"id"`
+	StudentNumber  string    `json:"student_number"`
+	FirstName      string    `json:"first_name"`
+	LastName       string    `json:"last_name"`
+	Email          string    `json:"email"`
+	Phone          string    `json:"phone"`
+	DepartmentID   int64     `json:"department_id"`
+	EnrollmentYear int32     `json:"enrollment_year"`
+	CreatedAt      time.Time `json:"created_at"`
 }
