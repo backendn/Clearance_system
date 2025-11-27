@@ -23,7 +23,7 @@ type CreateStudentRequest struct {
 func (server *Server) CreateStudent(ctx *gin.Context) {
 	var req CreateStudentRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
@@ -48,7 +48,7 @@ func (server *Server) CreateStudent(ctx *gin.Context) {
 
 	student, err := server.store.CreateStudent(ctx, arg)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
@@ -82,7 +82,7 @@ func (server *Server) UpdateStudent(ctx *gin.Context) {
 
 	var req CreateStudentRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
@@ -99,7 +99,7 @@ func (server *Server) UpdateStudent(ctx *gin.Context) {
 
 	student, err := server.store.UpdateStudent(ctx, arg)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
@@ -116,7 +116,7 @@ func (server *Server) DeleteStudent(ctx *gin.Context) {
 
 	err = server.store.DeleteStudent(ctx, id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 

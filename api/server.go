@@ -40,6 +40,12 @@ func (server *Server) setupRoutes() {
 	server.router.GET("/departments/:id", server.GetDepartment)
 	server.router.PATCH("/departments/:id", server.UpdateDepartment)
 	server.router.DELETE("/departments/:id", server.DeleteDepartment)
+	// Staff user routes
+	server.router.POST("/staff_users", server.CreateStaffUser)
+	server.router.GET("/staff_users/:id", server.GetStaffUser)
+	server.router.GET("/staff_users", server.ListStaffUsers)
+	server.router.PATCH("/staff_users/:id", server.UpdateStaffUser)
+	server.router.DELETE("/staff_users/:id", server.DeleteStaffUser)
 
 	// Add other modules later...
 	// server.router.POST("/departments", server.CreateDepartment)
