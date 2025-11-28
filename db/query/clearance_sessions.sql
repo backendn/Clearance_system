@@ -7,6 +7,18 @@ RETURNING *;
 -- name: GetSession :one
 SELECT * FROM clearance_sessions WHERE id = $1 LIMIT 1;
 
+-- name: GetActiveSession :one
+SELECT * FROM clearance_sessions
+WHERE active = TRUE
+LIMIT 1;
+
+-- name: DeactivateAllSessions :exec
+UPDATE clearance_sessions SET active = FALSE;
+
+-- name: ActivateSession :exec
+UPDATE clearance_sessions SET active = TRUE WHERE id = $1;
+
+
 -- name: ListSessions :many
 SELECT * FROM clearance_sessions ORDER BY id;
 

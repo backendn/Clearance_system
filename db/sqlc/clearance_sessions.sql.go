@@ -10,6 +10,15 @@ import (
 	"time"
 )
 
+const activateSession = `-- name: ActivateSession :exec
+UPDATE clearance_sessions SET active = TRUE WHERE id = $1
+`
+
+func (q *Queries) ActivateSession(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, activateSession, id)
+	return err
+}
+
 const createSession = `-- name: CreateSession :one
 INSERT INTO clearance_sessions (
     name, start_date, end_date, active, created_at
@@ -43,6 +52,15 @@ func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (C
 	return i, err
 }
 
+const deactivateAllSessions = `-- name: DeactivateAllSessions :exec
+UPDATE clearance_sessions SET active = FALSE
+`
+
+func (q *Queries) DeactivateAllSessions(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deactivateAllSessions)
+	return err
+}
+
 const deleteSession = `-- name: DeleteSession :exec
 DELETE FROM clearance_sessions WHERE id = $1
 `
@@ -50,6 +68,26 @@ DELETE FROM clearance_sessions WHERE id = $1
 func (q *Queries) DeleteSession(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, deleteSession, id)
 	return err
+}
+
+const getActiveSession = `-- name: GetActiveSession :one
+SELECT id, name, start_date, end_date, active, created_at FROM clearance_sessions
+WHERE active = TRUE
+LIMIT 1
+`
+
+func (q *Queries) GetActiveSession(ctx context.Context) (ClearanceSession, error) {
+	row := q.db.QueryRowContext(ctx, getActiveSession)
+	var i ClearanceSession
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.StartDate,
+		&i.EndDate,
+		&i.Active,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const getSession = `-- name: GetSession :one

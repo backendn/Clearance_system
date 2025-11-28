@@ -33,6 +33,14 @@ type ClearanceRecord struct {
 	UpdatedAt       time.Time `json:"updated_at"`
 }
 
+type ClearanceRequest struct {
+	ID        int64     `json:"id"`
+	StudentID int64     `json:"student_id"`
+	SessionID int64     `json:"session_id"`
+	Status    string    `json:"status"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type ClearanceSession struct {
 	ID        int64     `json:"id"`
 	Name      string    `json:"name"`

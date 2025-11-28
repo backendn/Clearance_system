@@ -46,6 +46,17 @@ func (server *Server) setupRoutes() {
 	server.router.GET("/staff_users", server.ListStaffUsers)
 	server.router.PATCH("/staff_users/:id", server.UpdateStaffUser)
 	server.router.DELETE("/staff_users/:id", server.DeleteStaffUser)
+	// clearance_items routes
+	server.router.POST("/clearance_items", server.createClearanceItem)
+	server.router.GET("/clearance_items/:id", server.getClearanceItem)
+	server.router.GET("/clearance_items", server.listClearanceItems)
+	server.router.GET("/departments/:department_id/clearance-items", server.listItemsByDepartment)
+	server.router.PATCH("/clearance_items/:id", server.updateClearanceItem)
+	server.router.DELETE("/clearance_items/:id", server.deleteClearanceItem)
+	// Clearance Requests
+	server.router.POST("/students/:id/clearance_request", server.SubmitClearanceRequest)
+	server.router.GET("/students/:id/clearance_requests", server.ListStudentRequests)
+	server.router.GET("/clearance_requests/:id", server.GetClearanceRequest)
 
 	// Add other modules later...
 	// server.router.POST("/departments", server.CreateDepartment)

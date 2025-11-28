@@ -9,14 +9,17 @@ import (
 )
 
 type Querier interface {
+	ActivateSession(ctx context.Context, id int64) error
 	CreateClearanceItem(ctx context.Context, arg CreateClearanceItemParams) (ClearanceItem, error)
 	CreateClearanceRecord(ctx context.Context, arg CreateClearanceRecordParams) (ClearanceRecord, error)
+	CreateClearanceRequest(ctx context.Context, arg CreateClearanceRequestParams) (ClearanceRequest, error)
 	CreateDepartment(ctx context.Context, arg CreateDepartmentParams) (Department, error)
 	CreateNotification(ctx context.Context, arg CreateNotificationParams) (Notification, error)
 	CreateRole(ctx context.Context, name string) (Role, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (ClearanceSession, error)
 	CreateStaffUser(ctx context.Context, arg CreateStaffUserParams) (StaffUser, error)
 	CreateStudent(ctx context.Context, arg CreateStudentParams) (Student, error)
+	DeactivateAllSessions(ctx context.Context) error
 	DeleteClearanceItem(ctx context.Context, id int64) error
 	DeleteClearanceRecord(ctx context.Context, id int64) error
 	DeleteDepartment(ctx context.Context, id int64) error
@@ -25,8 +28,10 @@ type Querier interface {
 	DeleteSession(ctx context.Context, id int64) error
 	DeleteStaffUser(ctx context.Context, id int64) error
 	DeleteStudent(ctx context.Context, id int64) error
+	GetActiveSession(ctx context.Context) (ClearanceSession, error)
 	GetClearanceItem(ctx context.Context, id int64) (ClearanceItem, error)
 	GetClearanceRecord(ctx context.Context, id int64) (ClearanceRecord, error)
+	GetClearanceRequest(ctx context.Context, id int64) (ClearanceRequest, error)
 	GetDepartment(ctx context.Context, id int64) (Department, error)
 	GetDepartmentByCode(ctx context.Context, code string) (Department, error)
 	GetNotification(ctx context.Context, id int64) (Notification, error)
@@ -40,6 +45,8 @@ type Querier interface {
 	GetStudentByStudentNumber(ctx context.Context, studentNumber string) (Student, error)
 	GetStudentByStudentNumberForUpdate(ctx context.Context, studentNumber string) (Student, error)
 	GetStudentForUpdate(ctx context.Context, id int64) (Student, error)
+	GetStudentRequestForSession(ctx context.Context, arg GetStudentRequestForSessionParams) (ClearanceRequest, error)
+	ListAllRequests(ctx context.Context) ([]ClearanceRequest, error)
 	ListClearanceItems(ctx context.Context) ([]ClearanceItem, error)
 	ListDepartments(ctx context.Context) ([]Department, error)
 	ListItemsByDepartment(ctx context.Context, departmentID int64) ([]ClearanceItem, error)
@@ -47,6 +54,7 @@ type Querier interface {
 	ListNotificationsForUser(ctx context.Context, recipientUserID int64) ([]Notification, error)
 	ListRecordsBySession(ctx context.Context, sessionID int64) ([]ClearanceRecord, error)
 	ListRecordsByStudent(ctx context.Context, studentID int64) ([]ClearanceRecord, error)
+	ListRequestsByStudent(ctx context.Context, studentID int64) ([]ClearanceRequest, error)
 	ListRoles(ctx context.Context) ([]Role, error)
 	ListSessions(ctx context.Context) ([]ClearanceSession, error)
 	ListStaffUsers(ctx context.Context, arg ListStaffUsersParams) ([]StaffUser, error)
@@ -54,6 +62,7 @@ type Querier interface {
 	MarkNotificationRead(ctx context.Context, id int64) (Notification, error)
 	UpdateClearanceItem(ctx context.Context, arg UpdateClearanceItemParams) (ClearanceItem, error)
 	UpdateClearanceRecordStatus(ctx context.Context, arg UpdateClearanceRecordStatusParams) (ClearanceRecord, error)
+	UpdateClearanceRequestStatus(ctx context.Context, arg UpdateClearanceRequestStatusParams) error
 	UpdateDepartment(ctx context.Context, arg UpdateDepartmentParams) (Department, error)
 	UpdateSession(ctx context.Context, arg UpdateSessionParams) (ClearanceSession, error)
 	UpdateStaffUser(ctx context.Context, arg UpdateStaffUserParams) (StaffUser, error)
