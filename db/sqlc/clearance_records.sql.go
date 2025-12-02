@@ -13,21 +13,19 @@ import (
 const createClearanceRecord = `-- name: CreateClearanceRecord :one
 INSERT INTO clearance_records (
     student_id, clearance_item_id, session_id,
-    status, note, handled_by,
-    handled_at, attachment_url, updated_at
-) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW())
+    status, note, handled_by, attachment_url, updated_at
+) VALUES ($1,$2,$3,$4,$5,$6,$7,NOW())
 RETURNING id, student_id, clearance_item_id, session_id, status, note, handled_by, handled_at, attachment_url, updated_at
 `
 
 type CreateClearanceRecordParams struct {
-	StudentID       int64     `json:"student_id"`
-	ClearanceItemID int64     `json:"clearance_item_id"`
-	SessionID       int64     `json:"session_id"`
-	Status          string    `json:"status"`
-	Note            string    `json:"note"`
-	HandledBy       int64     `json:"handled_by"`
-	HandledAt       time.Time `json:"handled_at"`
-	AttachmentUrl   string    `json:"attachment_url"`
+	StudentID       int64  `json:"student_id"`
+	ClearanceItemID int64  `json:"clearance_item_id"`
+	SessionID       int64  `json:"session_id"`
+	Status          string `json:"status"`
+	Note            string `json:"note"`
+	HandledBy       int64  `json:"handled_by"`
+	AttachmentUrl   string `json:"attachment_url"`
 }
 
 func (q *Queries) CreateClearanceRecord(ctx context.Context, arg CreateClearanceRecordParams) (ClearanceRecord, error) {
@@ -38,7 +36,6 @@ func (q *Queries) CreateClearanceRecord(ctx context.Context, arg CreateClearance
 		arg.Status,
 		arg.Note,
 		arg.HandledBy,
-		arg.HandledAt,
 		arg.AttachmentUrl,
 	)
 	var i ClearanceRecord

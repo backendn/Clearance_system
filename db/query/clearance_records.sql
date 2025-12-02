@@ -1,9 +1,8 @@
 -- name: CreateClearanceRecord :one
 INSERT INTO clearance_records (
     student_id, clearance_item_id, session_id,
-    status, note, handled_by,
-    handled_at, attachment_url, updated_at
-) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW())
+    status, note, handled_by, attachment_url, updated_at
+) VALUES ($1,$2,$3,$4,$5,$6,$7,NOW())
 RETURNING *;
 
 -- name: GetClearanceRecord :one

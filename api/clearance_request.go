@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 
 	db "github.com/backendn/clearance_system/db/sqlc"
@@ -33,7 +34,7 @@ func (server *Server) SubmitClearanceRequest(ctx *gin.Context) {
 	}
 
 	// 1. Validate student exists
-	_, err = server.store.GetStudent(ctx, studentID)
+	student, err := server.store.GetStudent(ctx, studentID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorMessage("student not found"))
@@ -55,10 +56,11 @@ func (server *Server) SubmitClearanceRequest(ctx *gin.Context) {
 	}
 
 	// 3. Ensure no duplicate request for this session
-	_, err = server.store.GetStudentRequestForSession(ctx, db.GetStudentRequestForSessionParams{
-		StudentID: studentID,
-		SessionID: session.ID,
-	})
+	_, err = server.store.GetStudentRequestForSession(ctx,
+		db.GetStudentRequestForSessionParams{
+			StudentID: studentID,
+			SessionID: session.ID,
+		})
 	if err == nil {
 		ctx.JSON(http.StatusBadRequest, errorMessage("clearance request already submitted"))
 		return
@@ -74,6 +76,12 @@ func (server *Server) SubmitClearanceRequest(ctx *gin.Context) {
 		return
 	}
 
+	// ---------------------------------------------
+	//  🔔 AUTO-NOTIFICATION #1 (to student)
+	// ---------------------------------------------
+	server.sendNotification(ctx, 0, studentID,
+		"Your clearance request has been submitted for session: "+session.Name)
+
 	// 5. Load all clearance items
 	items, err := server.store.ListClearanceItems(ctx)
 	if err != nil {
@@ -83,7 +91,8 @@ func (server *Server) SubmitClearanceRequest(ctx *gin.Context) {
 
 	// 6. Create clearance_records for each clearance item
 	for _, item := range items {
-		_, err := server.store.CreateClearanceRecord(ctx, db.CreateClearanceRecordParams{
+
+		record, err := server.store.CreateClearanceRecord(ctx, db.CreateClearanceRecordParams{
 			StudentID:       studentID,
 			ClearanceItemID: item.ID,
 			SessionID:       session.ID,
@@ -92,7 +101,26 @@ func (server *Server) SubmitClearanceRequest(ctx *gin.Context) {
 			ctx.JSON(http.StatusInternalServerError, errorMessage("failed to create clearance workflow"))
 			return
 		}
+
+		// -------------------------------------------------
+		//  🔔 AUTO-NOTIFICATION #2 (to department approver)
+		// -------------------------------------------------
+		fullName := student.FirstName + " " + student.LastName
+
+		server.sendNotification(ctx,
+			item.ApproverStaffID, // always valid
+			0,
+			"New clearance request pending: "+fullName+
+				" - Item: "+item.Title)
+
+		_ = record
 	}
+
+	//  ----------------------------------------------
+	//  🔔 AUTO-NOTIFICATION #3 (confirmation to student)
+	//  ----------------------------------------------
+	server.sendNotification(ctx, 0, studentID,
+		"Your clearance workflow has been created with "+fmt.Sprint(len(items))+" items.")
 
 	// 7. Respond
 	ctx.JSON(http.StatusCreated, gin.H{
@@ -100,6 +128,7 @@ func (server *Server) SubmitClearanceRequest(ctx *gin.Context) {
 		"request": convertClearanceRequest(req),
 	})
 }
+
 func (server *Server) ListStudentRequests(ctx *gin.Context) {
 	studentID, err := getIDParam(ctx)
 	if err != nil {
