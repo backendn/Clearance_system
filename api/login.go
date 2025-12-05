@@ -56,6 +56,10 @@ func (server *Server) Login(ctx *gin.Context) {
 		role.Name,
 		time.Hour,
 	)
+	if err != nil {
+		ctx.JSON(500, gin.H{"error": "cannot create token"})
+		return
+	}
 
 	// Return response
 	resp := loginResponse{

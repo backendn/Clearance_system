@@ -8,16 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Server serves HTTP requests for the clearance system.
 type Server struct {
 	store      db.Store
 	router     *gin.Engine
 	tokenMaker token.Maker
 }
 
-// NewServer creates a new HTTP server and sets up routes.
+// NewServer creates a new HTTP server and configures routes
 func NewServer(store db.Store) *Server {
-	// Create JWT maker with a secret key (32+ chars)
 	secretKey := "your-very-secure-32-char-secret-key"
 
 	maker, err := token.NewJWTMaker(secretKey)
@@ -34,20 +32,59 @@ func NewServer(store db.Store) *Server {
 	server.router = router
 
 	server.setupRoutes()
-
 	return server
 }
 
-// setupRoutes registers all endpoints.
 func (server *Server) setupRoutes() {
 
-	// Public endpoints
-	server.router.POST("/login", server.Login) // you should create this
-	server.router.POST("/register", server.CreateStaffUser)
+	// --------------------
+	// PUBLIC ROUTES
+	// --------------------
+	server.router.POST("/login", server.Login)
+	server.router.POST("/register", server.CreateStaffUser) // only for now
 
-	// Protected routes
+	// --------------------
+	// AUTHENTICATED ROUTES
+	// --------------------
 	auth := server.router.Group("/")
 	auth.Use(middleware.AuthMiddleware(server.tokenMaker))
+
+	// --------------------
+	// ADMIN ONLY
+	// --------------------
+	admin := auth.Group("/")
+	admin.Use(middleware.RoleMiddleware("admin"))
+
+	admin.POST("/departments", server.CreateDepartment)
+	admin.DELETE("/departments/:id", server.DeleteDepartment)
+
+	admin.POST("/roles", server.CreateRole)
+	admin.DELETE("/roles/:id", server.DeleteRole)
+
+	admin.POST("/clearance_items", server.createClearanceItem)
+	admin.DELETE("/staff_users/:id", server.DeleteStaffUser)
+
+	// --------------------
+	// STAFF ONLY
+	// --------------------
+	staff := auth.Group("/")
+	staff.Use(middleware.RoleMiddleware("staff", "admin"))
+
+	staff.PATCH("/clearance_records/:id/status", server.updateClearanceRecordStatus)
+	staff.GET("/sessions/:session_id/records", server.listRecordsBySession)
+
+	// --------------------
+	// STUDENT ONLY
+	// --------------------
+	student := auth.Group("/")
+	student.Use(middleware.RoleMiddleware("student"))
+
+	student.POST("/students/:id/clearance_request", server.SubmitClearanceRequest)
+	student.GET("/students/:id/clearance_requests", server.ListStudentRequests)
+
+	// --------------------
+	// GENERAL AUTH ROUTES (everyone with login)
+	// --------------------
 
 	// Students
 	auth.POST("/students", server.CreateStudent)
@@ -56,37 +93,29 @@ func (server *Server) setupRoutes() {
 	auth.DELETE("/students/:id", server.DeleteStudent)
 
 	// Departments
-	auth.POST("/departments", server.CreateDepartment)
 	auth.GET("/departments", server.ListDepartments)
 	auth.GET("/departments/:id", server.GetDepartment)
 	auth.PATCH("/departments/:id", server.UpdateDepartment)
-	auth.DELETE("/departments/:id", server.DeleteDepartment)
 
 	// Staff
 	auth.GET("/staff_users/:id", server.GetStaffUser)
 	auth.GET("/staff_users", server.ListStaffUsers)
 	auth.PATCH("/staff_users/:id", server.UpdateStaffUser)
-	auth.DELETE("/staff_users/:id", server.DeleteStaffUser)
 
 	// Clearance Items
-	auth.POST("/clearance_items", server.createClearanceItem)
-	auth.GET("/clearance_items/:id", server.getClearanceItem)
 	auth.GET("/clearance_items", server.listClearanceItems)
+	auth.GET("/clearance_items/:id", server.getClearanceItem)
 	auth.GET("/departments/:department_id/clearance-items", server.listItemsByDepartment)
 	auth.PATCH("/clearance_items/:id", server.updateClearanceItem)
 	auth.DELETE("/clearance_items/:id", server.deleteClearanceItem)
 
 	// Clearance Requests
-	auth.POST("/students/:id/clearance_request", server.SubmitClearanceRequest)
-	auth.GET("/students/:id/clearance_requests", server.ListStudentRequests)
 	auth.GET("/clearance_requests/:id", server.GetClearanceRequest)
 
 	// Records
 	auth.POST("/clearance_records", server.createClearanceRecord)
 	auth.GET("/clearance_records/:id", server.getClearanceRecord)
 	auth.GET("/students/:student_id/records", server.listRecordsByStudent)
-	auth.GET("/sessions/:session_id/records", server.listRecordsBySession)
-	auth.PATCH("/clearance_records/:id/status", server.updateClearanceRecordStatus)
 	auth.DELETE("/clearance_records/:id", server.deleteClearanceRecord)
 
 	// Notifications
@@ -97,14 +126,9 @@ func (server *Server) setupRoutes() {
 	auth.PATCH("/notifications/:id/read", server.MarkNotificationRead)
 	auth.DELETE("/notifications/:id", server.DeleteNotification)
 
-	// Roles
-	auth.POST("/roles", server.CreateRole)
-	auth.GET("/roles/:id", server.GetRole)
-	auth.GET("/roles", server.ListRoles)
-	auth.DELETE("/roles/:id", server.DeleteRole)
 }
 
-// Start runs the HTTP server on given address.
+// Start server
 func (server *Server) Start(address string) error {
 	return server.router.Run(address)
 }
@@ -124,10 +148,9 @@ func (server *Server) sendNotification(
 	_, err := server.store.CreateNotification(ctx, arg)
 	if err != nil {
 		// Basic logging, won't break workflow
-		// Option 1: Gin
-		ctx.Error(err)
+		ctx.Error(err) // logs to Gin
 
-		// Option 2: Standard log
+		// OR standard logging:
 		// log.Println("notification error:", err)
 
 		return
