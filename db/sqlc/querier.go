@@ -6,6 +6,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 type Querier interface {
@@ -50,8 +51,8 @@ type Querier interface {
 	ListClearanceItems(ctx context.Context) ([]ClearanceItem, error)
 	ListDepartments(ctx context.Context) ([]Department, error)
 	ListItemsByDepartment(ctx context.Context, departmentID int64) ([]ClearanceItem, error)
-	ListNotificationsForStudent(ctx context.Context, recipientStudentID int64) ([]Notification, error)
-	ListNotificationsForUser(ctx context.Context, recipientUserID int64) ([]Notification, error)
+	ListNotificationsForStudent(ctx context.Context, recipientStudentID sql.NullInt64) ([]Notification, error)
+	ListNotificationsForUser(ctx context.Context, recipientUserID sql.NullInt64) ([]Notification, error)
 	ListRecordsBySession(ctx context.Context, sessionID int64) ([]ClearanceRecord, error)
 	ListRecordsByStudent(ctx context.Context, studentID int64) ([]ClearanceRecord, error)
 	ListRequestsByStudent(ctx context.Context, studentID int64) ([]ClearanceRequest, error)

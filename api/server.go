@@ -88,7 +88,7 @@ func (server *Server) setupRoutes() {
 
 	// Students
 	auth.POST("/students", server.CreateStudent)
-	auth.GET("/students/:student_number", server.GetStudentByNumber)
+	auth.GET("/students/number/:student_number", server.GetStudentByNumber)
 	auth.PATCH("/students/:id", server.UpdateStudent)
 	auth.DELETE("/students/:id", server.DeleteStudent)
 
@@ -105,7 +105,7 @@ func (server *Server) setupRoutes() {
 	// Clearance Items
 	auth.GET("/clearance_items", server.listClearanceItems)
 	auth.GET("/clearance_items/:id", server.getClearanceItem)
-	auth.GET("/departments/:department_id/clearance-items", server.listItemsByDepartment)
+	auth.GET("/departments/department/:department_id/clearance-items", server.listItemsByDepartment)
 	auth.PATCH("/clearance_items/:id", server.updateClearanceItem)
 	auth.DELETE("/clearance_items/:id", server.deleteClearanceItem)
 
@@ -115,7 +115,7 @@ func (server *Server) setupRoutes() {
 	// Records
 	auth.POST("/clearance_records", server.createClearanceRecord)
 	auth.GET("/clearance_records/:id", server.getClearanceRecord)
-	auth.GET("/students/:student_id/records", server.listRecordsByStudent)
+	auth.GET("/students/student/:student_id/records", server.listRecordsByStudent)
 	auth.DELETE("/clearance_records/:id", server.deleteClearanceRecord)
 
 	// Notifications
@@ -139,8 +139,8 @@ func (server *Server) sendNotification(
 	msg string,
 ) {
 	arg := db.CreateNotificationParams{
-		RecipientUserID:    userID,
-		RecipientStudentID: studentID,
+		RecipientUserID:    ToNullInt64(userID),
+		RecipientStudentID: ToNullInt64(studentID),
 		Message:            msg,
 		Read:               false,
 	}

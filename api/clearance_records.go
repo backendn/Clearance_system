@@ -40,7 +40,7 @@ func (server *Server) createClearanceRecord(ctx *gin.Context) {
 		Status:          "pending",
 		Note:            req.Note,
 		HandledBy:       0,
-		AttachmentUrl:   req.AttachmentURL,
+		AttachmentUrl:   NullableString(req.AttachmentURL),
 	}
 
 	record, err := server.store.CreateClearanceRecord(ctx, arg)
@@ -118,7 +118,7 @@ func (server *Server) updateClearanceRecordStatus(ctx *gin.Context) {
 		Note:          req.Note,
 		HandledBy:     req.HandledBy,
 		HandledAt:     time.Now(),
-		AttachmentUrl: req.AttachmentURL,
+		AttachmentUrl: NullableString(req.AttachmentURL),
 		ID:            id,
 	}
 

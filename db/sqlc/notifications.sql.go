@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createNotification = `-- name: CreateNotification :one
@@ -18,10 +19,10 @@ RETURNING id, recipient_user_id, recipient_student_id, message, read, created_at
 `
 
 type CreateNotificationParams struct {
-	RecipientUserID    int64  `json:"recipient_user_id"`
-	RecipientStudentID int64  `json:"recipient_student_id"`
-	Message            string `json:"message"`
-	Read               bool   `json:"read"`
+	RecipientUserID    sql.NullInt64 `json:"recipient_user_id"`
+	RecipientStudentID sql.NullInt64 `json:"recipient_student_id"`
+	Message            string        `json:"message"`
+	Read               bool          `json:"read"`
 }
 
 func (q *Queries) CreateNotification(ctx context.Context, arg CreateNotificationParams) (Notification, error) {
@@ -77,7 +78,7 @@ WHERE recipient_student_id = $1
 ORDER BY created_at DESC
 `
 
-func (q *Queries) ListNotificationsForStudent(ctx context.Context, recipientStudentID int64) ([]Notification, error) {
+func (q *Queries) ListNotificationsForStudent(ctx context.Context, recipientStudentID sql.NullInt64) ([]Notification, error) {
 	rows, err := q.db.QueryContext(ctx, listNotificationsForStudent, recipientStudentID)
 	if err != nil {
 		return nil, err
@@ -114,7 +115,7 @@ WHERE recipient_user_id = $1
 ORDER BY created_at DESC
 `
 
-func (q *Queries) ListNotificationsForUser(ctx context.Context, recipientUserID int64) ([]Notification, error) {
+func (q *Queries) ListNotificationsForUser(ctx context.Context, recipientUserID sql.NullInt64) ([]Notification, error) {
 	rows, err := q.db.QueryContext(ctx, listNotificationsForUser, recipientUserID)
 	if err != nil {
 		return nil, err

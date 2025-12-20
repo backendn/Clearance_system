@@ -10,6 +10,7 @@ import (
 func RoleMiddleware(allowedRoles ...string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		payload, exists := ctx.Get("payload")
+
 		if !exists {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "missing token payload"})
 			ctx.Abort()

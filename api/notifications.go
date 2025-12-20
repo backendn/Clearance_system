@@ -20,8 +20,8 @@ type NotificationResponse struct {
 func convertNotification(n db.Notification) NotificationResponse {
 	return NotificationResponse{
 		ID:                 n.ID,
-		RecipientUserID:    n.RecipientUserID,
-		RecipientStudentID: n.RecipientStudentID,
+		RecipientUserID:    NullIntToInt(n.RecipientUserID),
+		RecipientStudentID: NullIntToInt(n.RecipientStudentID),
 		Message:            n.Message,
 		Read:               n.Read,
 		CreatedAt:          n.CreatedAt.String(),
@@ -39,17 +39,22 @@ type createNotificationRequest struct {
 // ================================
 func (server *Server) CreateNotification(ctx *gin.Context) {
 	var req createNotificationRequest
-
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorMessage(err.Error()))
 		return
 	}
 
 	notification, err := server.store.CreateNotification(ctx, db.CreateNotificationParams{
-		RecipientUserID:    req.RecipientUserID,
-		RecipientStudentID: req.RecipientStudentID,
-		Message:            req.Message,
-		Read:               false,
+		RecipientUserID: sql.NullInt64{
+			Int64: req.RecipientUserID,
+			Valid: req.RecipientUserID != 0,
+		},
+		RecipientStudentID: sql.NullInt64{
+			Int64: req.RecipientStudentID,
+			Valid: req.RecipientStudentID != 0,
+		},
+		Message: req.Message,
+		Read:    false,
 	})
 
 	if err != nil {
@@ -57,7 +62,7 @@ func (server *Server) CreateNotification(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, convertNotification(notification))
+	ctx.JSON(http.StatusOK, convertNotification(notification))
 }
 
 // ================================
@@ -93,7 +98,7 @@ func (server *Server) ListNotificationsForUser(ctx *gin.Context) {
 		return
 	}
 
-	list, err := server.store.ListNotificationsForUser(ctx, userID)
+	list, err := server.store.ListNotificationsForUser(ctx, ToNullInt64(userID))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorMessage(err.Error()))
 		return
@@ -117,7 +122,7 @@ func (server *Server) ListNotificationsForStudent(ctx *gin.Context) {
 		return
 	}
 
-	list, err := server.store.ListNotificationsForStudent(ctx, studentID)
+	list, err := server.store.ListNotificationsForStudent(ctx, ToNullInt64(studentID))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorMessage(err.Error()))
 		return

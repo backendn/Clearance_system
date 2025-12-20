@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"time"
 )
 
@@ -19,13 +20,13 @@ RETURNING id, student_id, clearance_item_id, session_id, status, note, handled_b
 `
 
 type CreateClearanceRecordParams struct {
-	StudentID       int64  `json:"student_id"`
-	ClearanceItemID int64  `json:"clearance_item_id"`
-	SessionID       int64  `json:"session_id"`
-	Status          string `json:"status"`
-	Note            string `json:"note"`
-	HandledBy       int64  `json:"handled_by"`
-	AttachmentUrl   string `json:"attachment_url"`
+	StudentID       int64          `json:"student_id"`
+	ClearanceItemID int64          `json:"clearance_item_id"`
+	SessionID       int64          `json:"session_id"`
+	Status          string         `json:"status"`
+	Note            string         `json:"note"`
+	HandledBy       int64          `json:"handled_by"`
+	AttachmentUrl   sql.NullString `json:"attachment_url"`
 }
 
 func (q *Queries) CreateClearanceRecord(ctx context.Context, arg CreateClearanceRecordParams) (ClearanceRecord, error) {
@@ -178,12 +179,12 @@ RETURNING id, student_id, clearance_item_id, session_id, status, note, handled_b
 `
 
 type UpdateClearanceRecordStatusParams struct {
-	Status        string    `json:"status"`
-	Note          string    `json:"note"`
-	HandledBy     int64     `json:"handled_by"`
-	HandledAt     time.Time `json:"handled_at"`
-	AttachmentUrl string    `json:"attachment_url"`
-	ID            int64     `json:"id"`
+	Status        string         `json:"status"`
+	Note          string         `json:"note"`
+	HandledBy     int64          `json:"handled_by"`
+	HandledAt     time.Time      `json:"handled_at"`
+	AttachmentUrl sql.NullString `json:"attachment_url"`
+	ID            int64          `json:"id"`
 }
 
 func (q *Queries) UpdateClearanceRecordStatus(ctx context.Context, arg UpdateClearanceRecordStatusParams) (ClearanceRecord, error) {

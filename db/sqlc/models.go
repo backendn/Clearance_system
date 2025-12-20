@@ -5,8 +5,20 @@
 package db
 
 import (
+	"database/sql"
 	"time"
 )
+
+type Admin struct {
+	ID             int64     `json:"id"`
+	Username       string    `json:"username"`
+	HashedPassword string    `json:"hashed_password"`
+	FullName       string    `json:"full_name"`
+	Email          string    `json:"email"`
+	Role           string    `json:"role"`
+	IsActive       bool      `json:"is_active"`
+	CreatedAt      time.Time `json:"created_at"`
+}
 
 type ClearanceItem struct {
 	ID                 int64     `json:"id"`
@@ -21,16 +33,16 @@ type ClearanceItem struct {
 }
 
 type ClearanceRecord struct {
-	ID              int64     `json:"id"`
-	StudentID       int64     `json:"student_id"`
-	ClearanceItemID int64     `json:"clearance_item_id"`
-	SessionID       int64     `json:"session_id"`
-	Status          string    `json:"status"`
-	Note            string    `json:"note"`
-	HandledBy       int64     `json:"handled_by"`
-	HandledAt       time.Time `json:"handled_at"`
-	AttachmentUrl   string    `json:"attachment_url"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	ID              int64          `json:"id"`
+	StudentID       int64          `json:"student_id"`
+	ClearanceItemID int64          `json:"clearance_item_id"`
+	SessionID       int64          `json:"session_id"`
+	Status          string         `json:"status"`
+	Note            string         `json:"note"`
+	HandledBy       int64          `json:"handled_by"`
+	HandledAt       time.Time      `json:"handled_at"`
+	AttachmentUrl   sql.NullString `json:"attachment_url"`
+	UpdatedAt       time.Time      `json:"updated_at"`
 }
 
 type ClearanceRequest struct {
@@ -58,12 +70,12 @@ type Department struct {
 }
 
 type Notification struct {
-	ID                 int64     `json:"id"`
-	RecipientUserID    int64     `json:"recipient_user_id"`
-	RecipientStudentID int64     `json:"recipient_student_id"`
-	Message            string    `json:"message"`
-	Read               bool      `json:"read"`
-	CreatedAt          time.Time `json:"created_at"`
+	ID                 int64         `json:"id"`
+	RecipientUserID    sql.NullInt64 `json:"recipient_user_id"`
+	RecipientStudentID sql.NullInt64 `json:"recipient_student_id"`
+	Message            string        `json:"message"`
+	Read               bool          `json:"read"`
+	CreatedAt          time.Time     `json:"created_at"`
 }
 
 type Role struct {
