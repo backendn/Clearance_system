@@ -63,6 +63,7 @@ func (maker *JWTMaker) VerifyToken(tokenString string) (*Payload, error) {
 
 	payload, ok := token.Claims.(*Payload)
 	if !ok {
+		
 		return nil, ErrInvalidToken
 	}
 

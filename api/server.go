@@ -2,7 +2,7 @@ package api
 
 import (
 	db "github.com/backendn/clearance_system/db/sqlc"
-	middleware "github.com/backendn/clearance_system/middelware"
+	middleware "github.com/backendn/clearance_system/middlware"
 	"github.com/backendn/clearance_system/token"
 
 	"github.com/gin-gonic/gin"
@@ -42,6 +42,7 @@ func (server *Server) setupRoutes() {
 	// --------------------
 	server.router.POST("/login", server.Login)
 	server.router.POST("/register", server.CreateStaffUser) // only for now
+	server.router.POST("/admins/login", server.LoginAdmin)
 
 	// --------------------
 	// AUTHENTICATED ROUTES
@@ -52,8 +53,13 @@ func (server *Server) setupRoutes() {
 	// --------------------
 	// ADMIN ONLY
 	// --------------------
-	admin := auth.Group("/")
-	admin.Use(middleware.RoleMiddleware("admin"))
+	// Admin-protected
+	admin := server.router.Group("/admins")
+	admin.Use(middleware.AuthMiddleware(server.tokenMaker))
+	admin.Use(middleware.AdminOnly())
+
+	admin.POST("", server.CreateAdmin)
+	admin.GET("", server.ListAdmins)
 
 	admin.POST("/departments", server.CreateDepartment)
 	admin.DELETE("/departments/:id", server.DeleteDepartment)
